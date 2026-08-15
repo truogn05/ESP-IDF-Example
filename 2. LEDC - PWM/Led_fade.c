@@ -11,6 +11,7 @@ trên esp32c3 - Door Gate Control Gate Module
 #include "driver/ledc.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include <math.h> 
 
 // Định nghĩa chân GPIO
 #define LED_RED_GPIO       GPIO_NUM_6
