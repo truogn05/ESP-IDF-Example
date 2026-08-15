@@ -52,7 +52,7 @@ static void IRAM_ATTR button_isr_handler(void *arg)
 {
     uint32_t now = xTaskGetTickCountFromISR();
 
-    if ((now - last_button_isr_tick) > pdMS_TO_TICKS(50)) {
+    if ((now - last_button_isr_tick) > pdMS_TO_TICKS(100)) {
         BaseType_t higher_priority_task_woken = pdFALSE;
 
         last_button_isr_tick = now;
