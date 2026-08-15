@@ -1,5 +1,6 @@
 /*
 đổi trạng thái đèn xanh và đỏ sử dụng PWM
+sử dụng biến đổi gamma cho mắt người
 trên esp32c3 - Door Gate Control Gate Module
 */
 #include <stdint.h>
@@ -30,11 +31,19 @@ static const char *TAG = "LED PWM";
 // brightness: 0 = tat, LEDC_MAX_DUTY = Sáng tối đa. 
 static void set_led_brightness(ledc_channel_t channel, uint32_t brightness)
 {
+    if(brightness > LEDC_MAX_DUTY){
+        brightness = LEDC_MAX_DUTY;
+    }
+
+    float normalized = (float)brightness / (float)LEDC_MAX_DUTY;
+    uint32_t gamma_duty = (uint32_t)(powf(normalized, 2.2f) * LEDC_MAX_DUTY + 0.5f);
+
     // Led dương chung -> pwm = max - brightness
-    uint32_t duty = LEDC_MAX_DUTY - brightness;
+    uint32_t duty = LEDC_MAX_DUTY - gamma_duty;
     ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, channel, duty));
     ESP_ERROR_CHECK(ledc_update_duty(LEDC_MODE, channel));
 }
+
 
 void app_main(void)
 {
@@ -78,7 +87,8 @@ void app_main(void)
             vTaskDelay(pdMS_TO_TICKS(FADE_STEP_MS));
         }
         //vTaskDelay(pdMS_TO_TICKS(1000));
-        
+        set_led_brightness(LEDC_CHANNEL_0, 0);
+        set_led_brightness(LEDC_CHANNEL_1, LEDC_MAX_DUTY);
         // Đỏ giảm, Xanh tăng
         ESP_LOGI(TAG, "BLUE");
         for (uint32_t red = LEDC_MAX_DUTY; red >= FADE_STEP; red -= FADE_STEP) {
@@ -86,6 +96,8 @@ void app_main(void)
             set_led_brightness(LEDC_CHANNEL_1, LEDC_MAX_DUTY - red);
             vTaskDelay(pdMS_TO_TICKS(FADE_STEP_MS));
         }
+        set_led_brightness(LEDC_CHANNEL_0, LEDC_MAX_DUTY);
+        set_led_brightness(LEDC_CHANNEL_1, 0);
         //vTaskDelay(pdMS_TO_TICKS(1000));
 
     }
