@@ -11,6 +11,7 @@ trên esp32c3 - Door Gate Control Gate Module
 #include "driver/ledc.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include <math.h>
 
 // Định nghĩa chân GPIO
 #define LED_RED_GPIO       GPIO_NUM_6
@@ -31,8 +32,15 @@ static const char *TAG = "LED PWM";
 // brightness: 0 = tat, LEDC_MAX_DUTY = Sáng tối đa. 
 static void set_led_brightness(ledc_channel_t channel, uint32_t brightness)
 {
+    if(brightness > LEDC_MAX_DUTY){
+        brightness = LEDC_MAX_DUTY;
+    }
+
+    float normalized = (float)brightness / (float)LEDC_MAX_DUTY;
+    uint32_t gamma_duty = (uint32_t)(powf(normalized, 2.2f) * LEDC_MAX_DUTY + 0.5f);
+
     // Led dương chung -> pwm = max - brightness
-    uint32_t duty = LEDC_MAX_DUTY - brightness;
+    uint32_t duty = LEDC_MAX_DUTY - gamma_duty;
     ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, channel, duty));
     ESP_ERROR_CHECK(ledc_update_duty(LEDC_MODE, channel));
 }
@@ -73,45 +81,54 @@ void app_main(void)
     while (true) {
         // Đỏ tăng
         ESP_LOGI(TAG, "RED INCREASE");
-        for (uint32_t red = 0; red <= LEDC_MAX_DUTY; red += FADE_STEP/2) {
-            set_led_brightness(LEDC_CHANNEL_0, red);
+        for (int32_t red = 0; red <= LEDC_MAX_DUTY; red += FADE_STEP) {
+            set_led_brightness(LEDC_CHANNEL_0, (uint32_t)red);
             vTaskDelay(pdMS_TO_TICKS(FADE_STEP_MS));
         }
+        set_led_brightness(LEDC_CHANNEL_0, LEDC_MAX_DUTY);
         
         // Đỏ giảm 
         ESP_LOGI(TAG, "RED DECREASE");
-        for (uint32_t red = LEDC_MAX_DUTY; red >= FADE_STEP; red -= FADE_STEP) {
-            set_led_brightness(LEDC_CHANNEL_0, red);
+        for (int32_t red = LEDC_MAX_DUTY; red >= 0; red -= FADE_STEP) {
+            set_led_brightness(LEDC_CHANNEL_0, (uint32_t)red);
             vTaskDelay(pdMS_TO_TICKS(FADE_STEP_MS));
         }
+        set_led_brightness(LEDC_CHANNEL_0, 0);
 
         // Xanh tăng
         ESP_LOGI(TAG, "BLUE INCREASE");
-        for (uint32_t blue = 0; blue <= LEDC_MAX_DUTY; blue += FADE_STEP/2) {
-            set_led_brightness(LEDC_CHANNEL_1, blue);
+        for (int32_t blue = 0; blue <= LEDC_MAX_DUTY; blue += FADE_STEP) {
+            set_led_brightness(LEDC_CHANNEL_1, (uint32_t)blue);
             vTaskDelay(pdMS_TO_TICKS(FADE_STEP_MS));
         }
+        set_led_brightness(LEDC_CHANNEL_1, LEDC_MAX_DUTY);
+
         // Xanh giảm 
         ESP_LOGI(TAG, "BLUE DECREASE");
-        for (uint32_t blue = LEDC_MAX_DUTY; blue >= FADE_STEP; blue -= FADE_STEP) {
-            set_led_brightness(LEDC_CHANNEL_1, blue);
+        for (int32_t blue = LEDC_MAX_DUTY; blue >= 0; blue -= FADE_STEP) {
+            set_led_brightness(LEDC_CHANNEL_1, (uint32_t)blue);
             vTaskDelay(pdMS_TO_TICKS(FADE_STEP_MS));
         }
+        set_led_brightness(LEDC_CHANNEL_1, 0);
 
         // Cả 2 tăng
         ESP_LOGI(TAG, "RED + BLUE INCREASE");
-        for (uint32_t increase = 0; increase <= LEDC_MAX_DUTY; increase += FADE_STEP/2) {
-            set_led_brightness(LEDC_CHANNEL_0, increase);
-            set_led_brightness(LEDC_CHANNEL_1, increase);
+        for (int32_t increase = 0; increase <= LEDC_MAX_DUTY; increase += FADE_STEP) {
+            set_led_brightness(LEDC_CHANNEL_0, (uint32_t)increase);
+            set_led_brightness(LEDC_CHANNEL_1, (uint32_t)increase);
             vTaskDelay(pdMS_TO_TICKS(FADE_STEP_MS));
         }
+        set_led_brightness(LEDC_CHANNEL_0, LEDC_MAX_DUTY);
+        set_led_brightness(LEDC_CHANNEL_1, LEDC_MAX_DUTY);
         
         // Cả 2 giảm 
         ESP_LOGI(TAG, "RED + BLUE DECREASE");
-        for (uint32_t decrease = LEDC_MAX_DUTY; decrease >= FADE_STEP; decrease -= FADE_STEP) {
-            set_led_brightness(LEDC_CHANNEL_0, decrease);
-            set_led_brightness(LEDC_CHANNEL_1, decrease);
+        for (int32_t decrease = LEDC_MAX_DUTY; decrease >= 0; decrease -= FADE_STEP) {
+            set_led_brightness(LEDC_CHANNEL_0, (uint32_t)decrease);
+            set_led_brightness(LEDC_CHANNEL_1, (uint32_t)decrease);
             vTaskDelay(pdMS_TO_TICKS(FADE_STEP_MS));
         }
+        set_led_brightness(LEDC_CHANNEL_0, 0);
+        set_led_brightness(LEDC_CHANNEL_1, 0);
     }
 }
