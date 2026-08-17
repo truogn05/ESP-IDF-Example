@@ -1,5 +1,5 @@
 /*
-đổi trạng thái đèn xanh và đỏ 
+đổi trạng thái đèn xanh và đỏ (Blink)
 với 2 task riêng biệt sử dụng freeRTOS
  - task 1: đọc button và thay đổi biến trạng thái
  - task 2: set tín hiệu cho led
