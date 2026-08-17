@@ -1,5 +1,5 @@
 /*
-đổi trạng thái đèn xanh và đỏ với chu kì 1s
+đổi trạng thái đèn xanh và đỏ với chu kì 2s
 trên esp32c3 - Door Gate Control Gate Module
 */
 #include <stdio.h>
@@ -19,8 +19,7 @@ trên esp32c3 - Door Gate Control Gate Module
 
 static const char *TAG = "LED_BLINK";
 
-void app_main(void){
-
+static void gpio_init(void){
     gpio_config_t led_conf = {
         .pin_bit_mask = (1ULL << LED_BLUE_GPIO) | (1ULL << LED_RED_GPIO),
         .mode = GPIO_MODE_OUTPUT,
@@ -28,8 +27,16 @@ void app_main(void){
         .pull_up_en = GPIO_PULLDOWN_DISABLE,
         .intr_type = GPIO_INTR_DISABLE
     };
-
+    
     gpio_config(&led_conf);
+
+    gpio_set_level(LED_RED_GPIO, LED_OFF);
+    gpio_set_level(LED_BLUE_GPIO, LED_OFF);
+}
+
+void app_main(void){
+
+    gpio_init();
 
     ESP_LOGI(TAG, "Bắt đầu");
     while(1){
