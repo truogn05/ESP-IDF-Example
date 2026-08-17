@@ -1,5 +1,5 @@
 /*
-Nhận lệnh điều khiển LED qua UART
+Nhận lệnh điều khiển LED qua UART kết hợp freeRTOS
  - 0 : Tắt cả 2 LED
  - 1 : Chỉ fade RED
  - 2 : Chỉ fade BLUE
@@ -45,7 +45,7 @@ bằng esp32c3 - Door Gate Control Gate Module
 
 static const char *TAG = "LED FADE";
 
-// Biến toàn cục lưu Mode hiện tại 
+// Lưu Mode hiện tại 
 static volatile uint8_t g_mode = 0;
 
 void uart_init(void)
@@ -110,7 +110,7 @@ void ledc_init(void)
     ESP_ERROR_CHECK(ledc_channel_config(&red_channel));
     ESP_ERROR_CHECK(ledc_channel_config(&blue_channel));
 
-    // Khởi tạo dịch vụ LEDC Fade Driver
+    // Khởi tạo dịch vụ LEDC Fade 
     ESP_ERROR_CHECK(ledc_fade_func_install(0));
 }
 
@@ -137,7 +137,7 @@ static void led_fade_task(void *arg)
     uint8_t last_mode = 255;
     uint32_t step_counter = 0;
     const uint32_t STEP_TICKS_MS = 50; // Kiểm tra trạng thái mode mỗi 50ms
-    const uint32_t TOTAL_STEPS = FADE_PHASE_MS / STEP_TICKS_MS; // 1000ms / 50ms = 20 bước
+    const uint32_t TOTAL_STEPS = FADE_PHASE_MS / STEP_TICKS_MS; 
 
     while (1) {
         uint8_t current_mode = g_mode;
@@ -157,7 +157,6 @@ static void led_fade_task(void *arg)
             bool red_enable  = (current_mode == 1 || current_mode == 3);
             bool blue_enable = (current_mode == 2 || current_mode == 3);
 
-            // Gọi hàm fade_ctrl không gây block
             fade_ctrl(RED_CHANNEL, red_enable, fade_in, FADE_PHASE_MS);
             fade_ctrl(BLUE_CHANNEL, blue_enable, fade_in, FADE_PHASE_MS);
         }
