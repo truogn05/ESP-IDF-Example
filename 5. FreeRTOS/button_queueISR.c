@@ -1,3 +1,10 @@
+/*
+đổi trạng thái đèn nháy bằng button qua ISR + Queue
+ - 2 trạng thái:
+   + NORMAL: đèn xanh nháy
+   + ALERT : đèn đỏ nháy nhanh
+trên esp32c3 - Door Gate Control Gate Module
+*/
 #include <stdio.h>
 #include <stdint.h>
 #include "freertos/FreeRTOS.h"
