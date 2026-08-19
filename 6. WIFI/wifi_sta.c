@@ -74,7 +74,7 @@ void app_main(void) {
     vTaskDelay(pdMS_TO_TICKS(1500));
     ESP_LOGI(TAG, "Khởi động chương trình kết nối WiFi...");
 
-    // 1. Khởi tạo bộ nhớ NVS 
+    // Khởi tạo bộ nhớ NVS 
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
@@ -82,6 +82,6 @@ void app_main(void) {
     }
     ESP_ERROR_CHECK(ret);
 
-    // 2. Bắt đầu kết nối WiFi
+    // Bắt đầu kết nối WiFi
     wifi_init_sta();
 }
