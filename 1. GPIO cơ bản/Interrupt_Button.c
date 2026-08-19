@@ -25,7 +25,7 @@ typedef struct {
     uint8_t blue;
 } led_state_t;
 
-static const char *TAG = "LED_BLINK";
+static const char *TAG = "BUTTON ISR";
 static volatile uint32_t last_button_isr_tick = 0;
 static TaskHandle_t blink_task_handle;
 
@@ -42,10 +42,9 @@ static void set_led_state(size_t state_index)
     gpio_set_level(LED_RED_GPIO, led_states[state_index].red);
     gpio_set_level(LED_BLUE_GPIO, led_states[state_index].blue);
 
-    ESP_LOGI(TAG, "Trang thai %u: Do-Xanh = %u%u",
-             (unsigned) (state_index + 1),
-             led_states[state_index].red,
-             led_states[state_index].blue);
+    ESP_LOGI(TAG, "RED: %s, BLUE: %s",
+             led_states[state_index].red == LED_OFF ? "OFF" : "ON",
+             led_states[state_index].blue) == LED_OFF ? "OFF" : "ON";
 }
 
 static void IRAM_ATTR button_isr_handler(void *arg)
@@ -88,7 +87,7 @@ void app_main(void)
     ESP_ERROR_CHECK(gpio_install_isr_service(0));
     ESP_ERROR_CHECK(gpio_isr_handler_add(BUTTON_GPIO, button_isr_handler, NULL));
 
-    ESP_LOGI(TAG, "Bắt đầu LED Blink. Nhấn BT1 để tạm dừng / tiếp tục.");
+    ESP_LOGI(TAG, "START");
 
     size_t state_index = 0;
     TickType_t last_change_tick = xTaskGetTickCount();
@@ -99,10 +98,10 @@ void app_main(void)
     while (1) {
         uint32_t button_presses = ulTaskNotifyTake(pdTRUE, 0);
 
-        if ((button_presses & 1U) != 0U) {
+        if (button_presses > 0) {
             blink_paused = !blink_paused;
             last_change_tick = xTaskGetTickCount();
-            ESP_LOGI(TAG, "%s", blink_paused ? "Pause" : "Resume");
+            ESP_LOGI(TAG, "%s", blink_paused ? "Tạm dừng" : "Tiếp tục");
         }
 
         if (!blink_paused && (xTaskGetTickCount() - last_change_tick >= pdMS_TO_TICKS(BLINK_PERIOD_MS))) {
