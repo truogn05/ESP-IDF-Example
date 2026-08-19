@@ -76,8 +76,8 @@ void app_main(void) {
     // Tạo timer
     esp_timer_create(&periodic_timer_args, &periodic_timer);
 
-    // Bắt đầu timer lặp lại mỗi 1.000.000 us = 1 giây 
-    ESP_LOGI("Main_task: ", "Bắt đầu Timer 1s");
+    // Bắt đầu timer lặp lại mỗi  1 giây 
+    ESP_LOGI("Main Task: ", "Bắt đầu Timer 1s");
     esp_timer_start_periodic(periodic_timer, 1000000);
     
 }
