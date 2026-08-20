@@ -1,3 +1,7 @@
+/*
+Quét và in ra thông tin các mạng Wifi trong phạm vi
+trên esp32c3 - Door Gate Control Gate Module
+*/
 #include <stdio.h>
 #include <string.h>
 #include "freertos/FreeRTOS.h"
