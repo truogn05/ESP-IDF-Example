@@ -17,7 +17,7 @@ trên esp32c3 - Door Gate Control Gate Module
 #define LED_ON          0
 #define LED_OFF         1
 
-static const char *TAG = "ESP TIMER: ";
+static const char *TAG = "ESP TIMER";
 //static const char *TAG = "TASK: ";
 
 typedef struct {
@@ -49,6 +49,7 @@ void gpio_init(void){
 
 // Callback function khi timer kích hoạt
 static void periodic_timer_callback(void* arg) {
+    
     static uint8_t state_idx = 0;
     // Đổi trạng thái hiện tại của đèn
     gpio_set_level(LED_RED_GPIO, led_states[state_idx].red);
@@ -79,5 +80,11 @@ void app_main(void) {
     // Bắt đầu timer lặp lại mỗi  1 giây 
     ESP_LOGI("Main Task: ", "Bắt đầu Timer 1s");
     esp_timer_start_periodic(periodic_timer, 1000000);
+
+    while(1){
+        ESP_LOGI("MAIN", "Block");
+        vTaskDelay(pdMS_TO_TICKS(2000));
+        
+    }
     
 }
