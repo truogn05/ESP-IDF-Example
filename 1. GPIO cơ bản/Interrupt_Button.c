@@ -44,7 +44,7 @@ static void set_led_state(size_t state_index)
 
     ESP_LOGI(TAG, "RED: %s, BLUE: %s",
              led_states[state_index].red == LED_OFF ? "OFF" : "ON",
-             led_states[state_index].blue) == LED_OFF ? "OFF" : "ON";
+             led_states[state_index].blue == LED_OFF ? "OFF" : "ON");
 }
 
 static void IRAM_ATTR button_isr_handler(void *arg)
